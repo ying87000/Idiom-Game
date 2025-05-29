@@ -1,5 +1,2 @@
-Flask>=2.0
-line-bot-sdk>=3.0.0  # 根據你安裝的 SDK 版本調整
-python-dotenv>=0.19
-gunicorn>=20.0      # 用於 Heroku 的 WSGI 伺服器
-redis>=4.0    
+flask
+line-bot-sdk
