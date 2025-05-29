@@ -85,16 +85,16 @@ def handle_message(event):
         return
 
     if text not in word_set:
-    if is_real_word(text):
-        add_word_to_dict(text)
-        reply = f"「{text}」是個新詞唷，我已經學會它了！👍"
-    else:
-        reply = f"「{text}」不是有效的詞語或成語唷～"
-    line_bot_api.reply_message(
-        event.reply_token,
-        TextSendMessage(text=reply)
-    )
-    return
+        if is_real_word(text):
+            add_word_to_dict(text)
+            reply = f"「{text}」是個新詞唷，我已經學會它了！👍"
+        else:
+            reply = f"「{text}」不是有效的詞語或成語唷～"
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text=reply)
+        )
+        return
 
     prev = data["last_word"]
     if text[0] != prev[-1]:
