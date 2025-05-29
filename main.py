@@ -21,23 +21,6 @@ user_data = {}
 START_COMMANDS = {"開始", "重新開始", "start", "Start"}
 END_COMMANDS = {"結束", "放棄", "quit", "Quit"}
 
-@app.route("/")
-def home():
-    return "成語接龍機器人啟動成功！"
-
-@app.route("/callback", methods=['POST'])
-def callback():
-    signature = request.headers['X-Line-Signature']
-    body = request.get_data(as_text=True)
-
-    try:
-        handler.handle(body, signature)
-    except InvalidSignatureError:
-        abort(400)
-
-    return 'OK'
-
-@handler.add(MessageEvent, message=TextMessage)
 def is_real_word(word):
     """
     使用萌典查詢詞語是否存在
@@ -55,6 +38,23 @@ def add_word_to_dict(word):
     word_list.append(word)
     word_set.add(word)
 
+@app.route("/")
+def home():
+    return "成語接龍機器人啟動成功！"
+
+@app.route("/callback", methods=['POST'])
+def callback():
+    signature = request.headers['X-Line-Signature']
+    body = request.get_data(as_text=True)
+
+    try:
+        handler.handle(body, signature)
+    except InvalidSignatureError:
+        abort(400)
+
+    return 'OK'
+
+@handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     user_id = event.source.user_id
     text = event.message.text.strip()
