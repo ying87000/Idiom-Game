@@ -4,6 +4,8 @@ from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
+import requests
+from bs4 import BeautifulSoup
 
 app = Flask(__name__)
 
@@ -36,6 +38,23 @@ def callback():
     return 'OK'
 
 @handler.add(MessageEvent, message=TextMessage)
+def is_real_word(word):
+    """
+    使用萌典查詢詞語是否存在
+    """
+    url = f"https://www.moedict.tw/{word}"
+    resp = requests.get(url)
+
+    if resp.status_code == 200 and "沒有這個詞" not in resp.text:
+        return True
+    return False
+
+def add_word_to_dict(word):
+    with open("words.txt", "a", encoding="utf-8") as f:
+        f.write(f"{word}\n")
+    word_list.append(word)
+    word_set.add(word)
+
 def handle_message(event):
     user_id = event.source.user_id
     text = event.message.text.strip()
@@ -65,10 +84,17 @@ def handle_message(event):
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply))
         return
 
-    if text not in WORD_SET:
+    if text not in word_set:
+    if is_real_word(text):
+        add_word_to_dict(text)
+        reply = f"「{text}」是個新詞唷，我已經學會它了！👍"
+    else:
         reply = f"「{text}」不是有效的詞語或成語唷～"
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply))
-        return
+    line_bot_api.reply_message(
+        event.reply_token,
+        TextSendMessage(text=reply)
+    )
+    return
 
     prev = data["last_word"]
     if text[0] != prev[-1]:
